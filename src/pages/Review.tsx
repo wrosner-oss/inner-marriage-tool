@@ -60,6 +60,39 @@ export function Review({ participantId }: { participantId: string }) {
     }
   };
 
+  // Copy the fully-formatted email to the clipboard as rich HTML, so it can be
+  // pasted straight into Gmail's compose window with styling intact.
+  const copyEmail = async () => {
+    setError(''); setStatus('');
+    try {
+      const res = await fetch(`/api/participants/${participantId}/preview`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ readingText: text, customNote: note }),
+      });
+      const full = await res.text();
+      // Paste the body content (not the <html>/<head> wrapper) for clean results.
+      const htmlFragment = full.replace(/^[\s\S]*<body[^>]*>/i, '').replace(/<\/body>[\s\S]*$/i, '');
+      const plain = htmlFragment.replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').trim();
+
+      if (navigator.clipboard && 'write' in navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/html': new Blob([htmlFragment], { type: 'text/html' }),
+            'text/plain': new Blob([plain], { type: 'text/plain' }),
+          }),
+        ]);
+        setStatus('Copied — paste into Gmail ✓');
+      } else {
+        await navigator.clipboard.writeText(plain);
+        setStatus('Copied as plain text ✓');
+      }
+      setTimeout(() => setStatus(''), 3000);
+    } catch {
+      setError('Copy failed — your browser may have blocked clipboard access. Try again.');
+    }
+  };
+
   if (!p) return <div className="container">{error ? <div className="error-banner">{error}</div> : <p className="muted">Loading…</p>}</div>;
 
   return (
@@ -99,7 +132,8 @@ export function Review({ participantId }: { participantId: string }) {
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button className="gold" onClick={save} disabled={!dirty}>Save changes</button>
-            <button onClick={createDraft} title="Creates a Gmail draft for Amelia to review and send">Create Gmail draft</button>
+            <button onClick={copyEmail} title="Copy the formatted email to paste into Gmail">Copy formatted email</button>
+            <button className="ghost" onClick={createDraft} title="Creates a Gmail draft for Amelia to review and send">Create Gmail draft</button>
             <span className="muted">{status}</span>
             {draftUrl && <a href={draftUrl} target="_blank" rel="noreferrer">Open in Gmail →</a>}
           </div>
