@@ -1,17 +1,22 @@
 # Multi-stage build for the Inner Marriage Tool.
 # Runtime needs a Node engine only — no Chromium, no ephemeris data files
 # (chart math is pure JS). That's the payoff of dropping the scraper.
+#
+# Uses Debian slim (not Alpine): Prisma's engine needs OpenSSL, which is
+# painful on Alpine/musl. Debian slim + openssl is the reliable combination.
 
-FROM node:20-alpine AS build
+FROM node:20-slim AS build
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 RUN npx prisma generate && npm run build
 
-FROM node:20-alpine AS run
+FROM node:20-slim AS run
 WORKDIR /app
 ENV NODE_ENV=production
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 # Bring the built app + all deps (tsx/prisma are used at runtime).
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
