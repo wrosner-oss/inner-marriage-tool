@@ -1,0 +1,28 @@
+# Inner Marriage Tool — deployed via Portainer (builds from the Git repo),
+# fronted by Pangolin (auth at the proxy). Data is SQLite on a named volume.
+#
+# The container publishes on host port 3110; the Pangolin resource targets
+# 10.0.20.112:3110. No APP_PASSWORD is set — Pangolin's own auth is the gate.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inner-marriage-tool
+    restart: unless-stopped
+    ports:
+      - "3110:3001"
+    environment:
+      DATABASE_URL: "file:/data/app.db"
+      PORT: "3001"
+      NODE_ENV: "production"
+      # APP_PASSWORD intentionally unset — Pangolin fronts authentication.
+      # Gmail draft creation (add when ready — see GMAIL_SETUP.md):
+      # GMAIL_SENDER: "amelia@ameliaperkins.com"
+      # GOOGLE_SERVICE_ACCOUNT_KEY: ""
+    volumes:
+      - im_data:/data
+
+volumes:
+  im_data:

@@ -1,0 +1,85 @@
+// Inner Marriage Tool — data model.
+// Dev runs on SQLite; production points at Wesley's MySQL by switching `provider`
+// to "mysql" and setting DATABASE_URL (see MORNING.md). Schema is kept portable:
+// JSON blobs and enums are stored as String so both engines are happy.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Class {
+  id           String        @id @default(cuid())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  participants Participant[]
+}
+
+model Participant {
+  id        String  @id @default(cuid())
+  classId   String
+  class     Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  // Birth data (Amelia-entered)
+  name      String
+  birthDate String  // YYYY-MM-DD
+  birthTime String? // HH:MM local, or null if unknown
+  place     String
+  pronoun   String  @default("They") // They | She | He
+  email     String?
+
+  // Computed chart (filled by the ephemeris step)
+  sunSign   String?
+  venusSign String?
+  marsSign  String?
+  chartJson String? // full positions as JSON string: {sun, moon, ... , ascendant, midheaven}
+
+  // Reading
+  readingText String? // last assembled or hand-edited reading (source-of-truth once edited)
+  customNote  String? // per-person note Amelia adds at review time
+  gapsJson    String? // JSON array of human-readable gap descriptions
+  error       String? // last chart-lookup error, if any
+  edited      Boolean @default(false) // true once Amelia hand-edits, so regen won't clobber
+  inputsHash  String? // hash of birth data + pronoun, to detect when regen is needed
+
+  // Sending
+  draftStatus String  @default("none") // none | draft_created | sent
+  draftId     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---- Content library (Amelia-editable) ----
+
+model Sign {
+  name                String  @id // Aries .. Pisces
+  element             String  // fire | earth | air | water
+  identity            String? // verbatim "I am [Sign]..." paragraph (null = gap)
+  identityFragment    String? // fallback fragment for signs with no full identity
+  descriptive         String?
+  feminineArchetypes  String? // JSON array (null = gap)
+  masculineArchetypes String? // JSON array (null = gap)
+  qualities           String? // JSON array of short quality phrases, sampled into the reflection questions
+  fuelKeywords        String?
+}
+
+model StructuralBlock {
+  key      String @id // opening | small_note_with_keywords | section_header | ...
+  template String
+}
+
+model Combination {
+  id        String  @id @default(cuid())
+  venusSign String
+  marsSign  String
+  questions String? // JSON array of reflection questions for this specific pairing
+  note      String? // optional note about how this pairing plays together
+
+  @@unique([venusSign, marsSign])
+}

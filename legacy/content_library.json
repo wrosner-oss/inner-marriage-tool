@@ -1,0 +1,216 @@
+{
+  "structural": {
+    "opening": "Dear {name},\n\nBelow is your special flavor of the masculine and feminine based on your birth chart.\n\nThis isn't your whole birth chart. It's just the dynamic of your inner marriage. But the inner marriage is really important as it reflects in all areas of our life, particularly in our relationships and how we put our work out into the world. It also speaks to what makes us feel sweet and happy and in alignment.",
+    "small_note_with_keywords": "Small note: in Shamanic Astrology, the Sun Sign isn't the most important piece. It's more like the fuel you need to shine bright. As your Sun is in **{sun_sign}**, that means you need all that {sun_sign} goodness — {keywords} — to feel your best.",
+    "small_note_without_keywords": "Small note: in Shamanic Astrology, the Sun Sign isn't the most important piece. It's more like the fuel you need to shine bright. As your Sun is in **{sun_sign}**, that means you need all that {sun_sign} goodness to feel your best.",
+    "small_note_echo": " That said, your {planet} is also in {sun_sign}. So this part of you should not be denied!",
+    "section_header": "**Here below is your special flavor of your inner marriage based on your birth chart:**\n\nYour \"feminine\" side (represented by Venus) is in {venus_sign}\nYour \"masculine\" side (represented by Mars) is in {mars_sign}\n\nHere's the flavor and attitude of each:",
+    "right_relationship": "In Tantra, the thing to look for is always if your masculine side is serving your feminine side so she can fully blossom. Also to make sure she has a lot of space for expression as she is primary!\n\nThe idea is that the more space the feminine has to express herself, the happier we are! More life force energy. More radiance. More ability to manifest what we want.\n\nEverything tends to go better when our inner masculine serves our inner feminine.",
+    "right_relationship_male_addon": " That said, as a man, both are hugely important and need honoring and full expression.",
+    "closing": "Much love,\nAmelia\n\nAmelia Sunyata Perkins\nCounseling / Workshops / Love experiment links",
+    "double_sign_framing": "Yes — a double {sign}! Your feminine and masculine share the same energy here, both flavored by {sign}'s {element}."
+  },
+  "signs": {
+    "Aries": {
+      "element": "fire",
+      "identity": "I am Aries, a fire sign. I create the first gate of awareness, through which I teach the meaning of individuation. I am active, high spirited, and energetic. I love excitement, adventure, play, and competition. As a sacred warrior, I will fight to defend my belief and protect what I value in life.\n\nI like to go first, birth the new, get something started, and lead the way. I am courageous, trusting, decisive, inspired and spontaneous.",
+      "descriptive": "Aries is a risk taker, likes adrenaline, movement, and newness. It follows instinct and is the force that starts things.",
+      "feminine_archetypes": [
+        "Wild Woman Archetype",
+        "\"Women Who Run with the Wolves\"",
+        "Warrior Amazon",
+        "Fighting for a Cause",
+        "The Tom Boy",
+        "Joan of Arc"
+      ],
+      "masculine_archetypes": [
+        "The Warrior / Competitor",
+        "The Rugged Individualist",
+        "The Initiator",
+        "The Playful Risk-Taker"
+      ],
+      "fuel_keywords": null
+    },
+    "Taurus": {
+      "element": "earth",
+      "identity": "I am Taurus, an earth sign. I create the second gate of awareness, through which I teach the value of enjoying the earthly realm of matter. I delight in all that looks beautiful, tastes delicious, and feels pleasurable. I love receiving all the exquisite things and gratifications the physical realm has to offer. I also know how to take solid steps to fulfill my desires for possessions, wealth, and security. I connect to the divine when I savor and enjoy intimacy through the body and senses.",
+      "descriptive": "Taurus is in an intimate relationship with the physical realm. Loves pleasures of the senses. Often enjoys doing things with their hands or bodies such as planting, building, giving massages, dancing & body building. Moves through life in Taurus Time. Sensual lovers of life. Savors each moment.",
+      "feminine_archetypes": [
+        "Aphrodite",
+        "The Lover",
+        "The Courtesan",
+        "The Artist",
+        "Musician",
+        "Dancer",
+        "Model"
+      ],
+      "masculine_archetypes": [
+        "The Lover",
+        "Intimacy Expert",
+        "Pleasure Lover",
+        "Dancer",
+        "Artist",
+        "Model",
+        "Musician"
+      ],
+      "fuel_keywords": null
+    },
+    "Gemini": {
+      "element": "air",
+      "identity": "I am Gemini, an air sign. I create the third gate of awareness, through which I teach the importance of the mind and ideas. I crave fresh experiences, change, fun, games, and imagination. I am versatile and curious and often play the comedian and perpetual youth. I am self-expressive through writing, speaking, or connecting to the divine muse through my many creative pursuits. I like to communicate, network, and bring news and information.",
+      "descriptive": "Gemini loves creativity and often loves child-like creative expression. They have a unique way of looking at the world and must have fresh experiences, change, fun, games, and imagination.",
+      "feminine_archetypes": [
+        "The Eternal Youth",
+        "The Shapeshifter",
+        "The Divine Comedienne",
+        "The Creative Muse"
+      ],
+      "masculine_archetypes": [
+        "The Trickster Magician",
+        "The Troubadour Minstrel",
+        "The Court Jester",
+        "The Coyote",
+        "The Fool",
+        "The Shape Shifter",
+        "The Information Networker",
+        "Hermes (Mercury)"
+      ],
+      "fuel_keywords": null
+    },
+    "Cancer": {
+      "element": "water",
+      "identity": "I am Cancer, a water sign. I create the fourth gate of awareness, through which I teach the meaning of nurturing. I am the devoted caregiver—to my family, my people, my creations. I love home. I love comfort. I love what is close and meaningful. I am sensitive to vulnerability, and I create safe emotional space for what is tender, young, and growing.",
+      "descriptive": "Cancer energy loves to nurture — children, pets, friends, chosen family; gardens, homes, creative projects, businesses; anything that feels alive and worth tending.",
+      "feminine_archetypes": [
+        "The Great Mother (nurturing form)",
+        "The Woman devoted to her clan/her people",
+        "The Keeper of what is growing — tending seeds into life"
+      ],
+      "masculine_archetypes": [
+        "The Good Father / Family Man",
+        "The Protector",
+        "The Devoted Nurturer — identity rooted in love, responsibility, and care"
+      ],
+      "fuel_keywords": "comfort, emotional connection, meaningful bonds, a warm sense of home"
+    },
+    "Leo": {
+      "element": "fire",
+      "identity": "I am Leo, the fire sign. I create the fifth gate of awareness, through which I teach the value of radiance. I use the key of self-love to turn up my light — and the brighter I shine, the more I inspire others.\n\nI am a natural leader, performer, star, director, and creator. I am self-confident, dramatic, regal, openhearted, generous, creative, expansive, powerful, and outgoing. I celebrate life from the center stage of my own heart.",
+      "descriptive": "Leo energy is fully willing to be seen — to step forward in radiant leadership and heartfelt expression. Rooted in self-love, this archetype inspires others simply by being fully alive.",
+      "feminine_archetypes": [
+        "The Leading Woman",
+        "The Amazon Queen",
+        "The Star",
+        "Women who lead through spontaneity and deep self-love"
+      ],
+      "masculine_archetypes": [
+        "The King",
+        "The Born Leader",
+        "The Leading Man",
+        "Apollo",
+        "The Performer"
+      ],
+      "fuel_keywords": null
+    },
+    "Virgo": {
+      "element": "earth",
+      "identity": "I am Virgo, an earth sign. I create the sixth gate of awareness, through which I teach the significance of dedicated work. I understand and honor patterns, timings, rhythms, and cycles. I access the Priest/ess within me to honor the sacred in the natural world through ceremony and ritual. I am organized, practical, dependable, productive, and a hard worker with a tremendous capacity for handling the details of the earthly realm. I am dedicated to doing my sacred work by being in service to the world around me.",
+      "descriptive": "Virgo is dedicated to their sacred work, honors the patterns of life and nature, and honors life transitions.",
+      "feminine_archetypes": [
+        "The High Priestess Dedicated to the Sacred Work",
+        "Spider Woman"
+      ],
+      "masculine_archetypes": [
+        "The Priest Dedicated to Sacred Word or Craft",
+        "The Servant to/of the Goddess"
+      ],
+      "fuel_keywords": null
+    },
+    "Libra": {
+      "element": "air",
+      "identity": "I am Libra, an air sign. I create the seventh gate of awareness, through which I teach the importance of balanced relationships. I have the capacity to see things from all sides, honor each person's point of view, balance opposites, consider options, and mediate well. I create safe space for all the gates of awareness to be valued. My cooperative social skills make me a good partner, hostess, and companion. Relationship is my spiritual path.",
+      "descriptive": "Libra loves connecting and working with others. Likes to partner up on projects and in life, and can hold space for each person's viewpoint and individuality.",
+      "feminine_archetypes": [
+        "The Wife",
+        "The Partner",
+        "Women Who See Relationship as a Path to God (the Divine)"
+      ],
+      "masculine_archetypes": [
+        "The Husband",
+        "The Partner",
+        "The Peacemaker",
+        "The Diplomat"
+      ],
+      "fuel_keywords": null
+    },
+    "Scorpio": {
+      "element": "water",
+      "identity": "I am Scorpio, a water sign. I create the eighth gate of awareness, through which I teach the power of feelings. I fully experience the complete range of feelings, from icy and frozen, to hot and steamy, and everything in-between. My training is to learn to master my response to them. I am intense and passionate about discovering what lies well beneath the surface of current awareness. I travel deep into my feeling waters to connect to Source and use the treasures I discover there to generate life force in myself and in others. I possess a potent intuition, or sixth-sense, and an ability to travel into other realms of consciousness.",
+      "descriptive": "Scorpio dives deep, may know how to move in non-ordinary reality, and carries the medicine of helping others through dark places.",
+      "feminine_archetypes": [
+        "The Sorceress Witch",
+        "The Tantrica",
+        "The Mistress of Magic",
+        "The Goddesses: Kali, Pele, Hecate, Cretan Snake Goddess"
+      ],
+      "masculine_archetypes": null,
+      "fuel_keywords": "going deep into feelings to connect to Source, time with intuition, possibly non-ordinary reality"
+    },
+    "Sagittarius": {
+      "element": "fire",
+      "identity": "I am Sagittarius, a fire sign. I create the ninth gate of awareness, through which I teach the significance of expansion. I am the dynamic, out-going, truth-seeking explorer.\n\nI constantly quest for expansion by physically and energetically seeking out new ideas and territories. I bring my expanded awareness and discoveries back to share with others as a teacher of philosophy and of evolving states of consciousness.\n\nI passionately search for the meaning of life through freedom, growth, and development.",
+      "descriptive": "Sagittarius needs a lot of fuel in terms of energy, interaction, and experience. Loves discovering and exploring new territory, and quests for spirit, knowledge, and growth.",
+      "feminine_archetypes": [
+        "The Vision Quest Amazon in Search of Spiritual Truth and the Meaning of Life",
+        "The Spiritual Adventurer",
+        "The Trailmate"
+      ],
+      "masculine_archetypes": [
+        "The Hero's Quest",
+        "Vision Quest for Meaning and Truth",
+        "The Philosopher-Pioneer",
+        "The Seeker",
+        "The Explorer"
+      ],
+      "fuel_keywords": null
+    },
+    "Capricorn": {
+      "element": "earth",
+      "identity": "I am Capricorn, an earth sign. I create the tenth gate of awareness, through which I teach the value of structure and form. I am the administrator, the mature and wise one, the disciplined teacher, the hard-working leader, the good provider, and the practical businessperson. I am ambitious, responsible, effective, efficient, and goal oriented as I bring new structures into earthly form. I create organizations and systems designed to last and support generations to come.",
+      "descriptive": "Capricorn knows the rules and knows when rules are changing to accommodate the natural evolution of life, and helps write the new operating manual.",
+      "feminine_archetypes": null,
+      "masculine_archetypes": [
+        "The Elder",
+        "The Prime Minister",
+        "The Lawgiver",
+        "The Responsible Elder and Good Provider",
+        "The Practical Business Man",
+        "The Exiled Scapegoat (used ritually, for the good of the tribe)"
+      ],
+      "fuel_keywords": "structure, devotion, goals, grounded building"
+    },
+    "Aquarius": {
+      "element": "air",
+      "identity": "I am Aquarius, an air sign. I create the eleventh gate of awareness, through which I teach the importance of innovation. I have a cosmic perspective on life and bring radical new ideas to humanity. I am the free-spirited visionary, exploring unconventional territory. I am here for truth, for evolution, for a better world.",
+      "descriptive": "Aquarius is connected to the big picture — sees beyond the personal, receives ideas that serve the collective, and is innovative, original, and often ahead of her/his time.",
+      "feminine_archetypes": [
+        "The Cosmic Visionary",
+        "The Avant-Garde Revolutionary",
+        "The Grand Experimenter",
+        "The Female Avatar",
+        "The Lover of the Devic Realms"
+      ],
+      "masculine_archetypes": null,
+      "fuel_keywords": null
+    },
+    "Pisces": {
+      "element": "water",
+      "identity": null,
+      "identity_fragment": "...you are here to learn and embody all that Pisces goodness: being deeply spiritual, intuitive, and connecting to Big Love, Source or the Divine.",
+      "descriptive": null,
+      "feminine_archetypes": null,
+      "masculine_archetypes": null,
+      "fuel_keywords": "time in the mystical, the intuitive; connection to Source, to Big Love, to the unseen"
+    }
+  }
+}

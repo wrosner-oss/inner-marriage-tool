@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.env
+*.db
+*.db-journal
+.superpowers
+legacy/__pycache__
+.venv
+scripts/out
+.DS_Store
