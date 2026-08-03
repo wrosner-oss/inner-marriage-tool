@@ -141,8 +141,8 @@ function chartList(c: RenderChart): string {
 
   return (
     rule +
-    `<h2 style="font-family:Georgia,serif;text-align:center;color:${C.plum};font-weight:normal;font-size:20px;margin:0 0 4px;">Your chart at a glance</h2>` +
-    `<div style="text-align:center;font-size:12.5px;color:${C.muted};font-style:italic;margin-bottom:16px;">— all your placements, from your birth chart —</div>` +
+    `<h2 style="font-family:Georgia,serif;text-align:center;color:${C.plum};font-weight:normal;font-size:20px;margin:0 0 4px;">P.S. — Your chart at a glance</h2>` +
+    `<div style="text-align:center;font-size:12.5px;color:${C.muted};font-style:italic;margin-bottom:16px;">A little bonus: all your placements, from your birth chart.</div>` +
     `<div style="max-width:430px;margin:0 auto;">${planetRows}${angleRows}</div>`
   );
 }
@@ -187,7 +187,6 @@ export function renderEmail(input: RenderInput): string {
 
   const body: string[] = [];
   let panelInserted = false;
-  let chartInserted = false;
 
   for (let i = 0; i < blocks.length; i++) {
     const t = blocks[i].trim();
@@ -200,16 +199,8 @@ export function renderEmail(input: RenderInput): string {
       panelInserted = true;
     }
 
-    // Insert the chart list just before the closing/signature block.
-    if (!chartInserted && /^(much love|with love|warmly|blessings)/i.test(t)) {
-      body.push(chartList(chart));
-      chartInserted = true;
-    }
-
     body.push(renderBlock(blocks[i]));
   }
-
-  if (!chartInserted) body.push(chartList(chart)); // fallback: append before end
 
   const personal = customNote && customNote.trim()
     ? `<div style="background:${C.panelBg};border:1px solid ${C.panelBorder};border-radius:6px;padding:14px 18px;font-size:15px;line-height:1.7;color:${C.ink};font-style:italic;margin:0 0 22px;">${inline(customNote.trim())}</div>`
@@ -223,6 +214,9 @@ export function renderEmail(input: RenderInput): string {
     ? `<div style="border-top:1px solid ${C.hair};margin-top:30px;padding-top:18px;text-align:center;font-size:14px;color:${C.plum};line-height:1.8;">${inline(signature.trim())}</div>`
     : '';
   if (sig) body.push(sig);
+
+  // The full chart goes at the very bottom, as a P.S. after the signature.
+  body.push(chartList(chart));
 
   return `<!doctype html>
 <html>
