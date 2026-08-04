@@ -33,6 +33,14 @@ export function Library() {
   );
 }
 
+// Build the dropdown options from a sign's archetype list, keeping a currently-
+// selected value even if it's no longer in the (possibly edited) list.
+function archetypeOptions(list: string[] | undefined, current: string | null | undefined): string[] {
+  const arr = (list || []).map((s) => s.trim()).filter(Boolean);
+  const cur = current?.trim();
+  return cur && !arr.includes(cur) ? [cur, ...arr] : arr;
+}
+
 function SignsEditor({ lib, reload, flash }: any) {
   const [sel, setSel] = useState('Aries');
   const s = lib.signs.find((x: any) => x.name === sel);
@@ -49,6 +57,8 @@ function SignsEditor({ lib, reload, flash }: any) {
       fuelKeywords: f.fuelKeywords,
       feminineArchetypes: (f.feminineArchetypes || []).filter(Boolean),
       masculineArchetypes: (f.masculineArchetypes || []).filter(Boolean),
+      feminineQuestionArchetype: f.feminineQuestionArchetype ?? '',
+      masculineQuestionArchetype: f.masculineQuestionArchetype ?? '',
       qualities: (f.qualities || []).filter(Boolean),
     });
     flash(`${sel} saved ✓`); reload();
@@ -90,6 +100,24 @@ function SignsEditor({ lib, reload, flash }: any) {
           <textarea style={{ minHeight: 120 }} value={(f.masculineArchetypes || []).join('\n')} onChange={(e) => setF({ ...f, masculineArchetypes: e.target.value.split('\n') })} />
         </div>
       </div>
+      <div style={{ height: 12 }} />
+      <div className="row">
+        <div className="grow">
+          <label>Archetype used in the question (feminine)</label>
+          <select value={f.feminineQuestionArchetype ?? ''} onChange={(e) => setF({ ...f, feminineQuestionArchetype: e.target.value })}>
+            <option value="">(first in list — default)</option>
+            {archetypeOptions(f.feminineArchetypes, f.feminineQuestionArchetype).map((a: string) => <option key={a} value={a}>{a}</option>)}
+          </select>
+        </div>
+        <div className="grow">
+          <label>Archetype used in the question (masculine)</label>
+          <select value={f.masculineQuestionArchetype ?? ''} onChange={(e) => setF({ ...f, masculineQuestionArchetype: e.target.value })}>
+            <option value="">(first in list — default)</option>
+            {archetypeOptions(f.masculineArchetypes, f.masculineQuestionArchetype).map((a: string) => <option key={a} value={a}>{a}</option>)}
+          </select>
+        </div>
+      </div>
+      <p className="muted" style={{ margin: '4px 0 0' }}>These pick which single archetype appears in "Is your ___ serving your ___?" — the full lists above still show in the email.</p>
       <div style={{ height: 12 }} />
       <label>Qualities (one per line) — sampled into the reflection questions, e.g. "questing for…"</label>
       <textarea style={{ minHeight: 110 }} value={(f.qualities || []).join('\n')} placeholder={'spiritual truth\nadventure\nexploring new territory\nfreedom'} onChange={(e) => setF({ ...f, qualities: e.target.value.split('\n') })} />

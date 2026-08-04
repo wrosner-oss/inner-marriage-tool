@@ -192,8 +192,11 @@ function fillReflectionQuestions(
   // "The Vision Quest Amazon" -> "Vision Quest Amazon" so the template reads
   // "Is your Vision Quest Amazon serving…", not "Is your The Vision Quest Amazon…".
   const stripArticle = (s: string) => s.replace(/^(the|a|an)\s+/i, '');
-  const archOr = (arr: string[], polarity: string, sign: string): string => {
-    if (arr.length) return stripArticle(arr[0]);
+  // Use Amelia's chosen question archetype if set; otherwise fall back to the
+  // first in the list (which is what happened before this was configurable).
+  const archOr = (chosen: string | null | undefined, arr: string[], polarity: string, sign: string): string => {
+    const pick = chosen && chosen.trim() ? chosen.trim() : arr[0];
+    if (pick) return stripArticle(pick);
     gaps.push(`No ${polarity} archetype on file for ${sign} — needed for the reflection questions.`);
     return `[${GAP_MARKER}: add ${sign} ${polarity} archetype]`;
   };
@@ -205,8 +208,8 @@ function fillReflectionQuestions(
     feminine_qualities_2: need(femB, 'more feminine qualities', venusSign),
     masculine_qualities: need(mascA, 'masculine qualities', marsSign),
     masculine_qualities_2: need(mascB, 'more masculine qualities', marsSign),
-    feminine_archetype: archOr(venusFem, 'feminine', venusSign),
-    masculine_archetype: archOr(marsMasc, 'masculine', marsSign),
+    feminine_archetype: archOr(signs.get(venusSign)?.feminineQuestionArchetype, venusFem, 'feminine', venusSign),
+    masculine_archetype: archOr(signs.get(marsSign)?.masculineQuestionArchetype, marsMasc, 'masculine', marsSign),
   };
 
   return template
@@ -248,7 +251,7 @@ export async function previewReflectionQuestions(prisma: PrismaClient, venusSign
     gaps,
     venusQualities: parseList(v?.qualities ?? null) ?? [],
     marsQualities: parseList(m?.qualities ?? null) ?? [],
-    venusArchetype: (parseList(v?.feminineArchetypes ?? null) ?? [])[0] ?? null,
-    marsArchetype: (parseList(m?.masculineArchetypes ?? null) ?? [])[0] ?? null,
+    venusArchetype: (v?.feminineQuestionArchetype?.trim() || (parseList(v?.feminineArchetypes ?? null) ?? [])[0]) ?? null,
+    marsArchetype: (m?.masculineQuestionArchetype?.trim() || (parseList(m?.masculineArchetypes ?? null) ?? [])[0]) ?? null,
   };
 }

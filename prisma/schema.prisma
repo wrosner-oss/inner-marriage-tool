@@ -65,6 +65,10 @@ model Sign {
   descriptive         String?
   feminineArchetypes  String? // JSON array (null = gap)
   masculineArchetypes String? // JSON array (null = gap)
+  // Which single archetype to use in the reflection question (chosen from the
+  // lists above). Null = fall back to the first in the list.
+  feminineQuestionArchetype  String?
+  masculineQuestionArchetype String?
   qualities           String? // JSON array of short quality phrases, sampled into the reflection questions
   fuelKeywords        String?
 }
