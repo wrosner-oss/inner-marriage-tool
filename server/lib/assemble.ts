@@ -159,19 +159,19 @@ function joinNice(items: string[]): string {
 
 /**
  * Fill the standard reflection-question templates (stored, editable, in the
- * `reflection_questions` structural block) with this person's values.
- * Qualities are sampled from each sign's `qualities` list; missing pieces are
- * flagged as gaps rather than invented.
+ * `reflection_questions` structural block) with this person's values, returning
+ * one filled question string per template. Qualities are sampled from each
+ * sign's `qualities` list; missing pieces are flagged as gaps, never invented.
  */
-function reflectionQuestions(
+function fillReflectionQuestions(
   S: Map<string, string>,
   signs: Map<string, any>,
   venusSign: string,
   marsSign: string,
   gaps: string[],
-): string {
+): string[] {
   const template = S.get('reflection_questions');
-  if (!template || !template.trim()) return '';
+  if (!template || !template.trim()) return [];
 
   const venusQ = parseList(signs.get(venusSign)?.qualities) ?? [];
   const marsQ = parseList(signs.get(marsSign)?.qualities) ?? [];
@@ -209,11 +209,46 @@ function reflectionQuestions(
     masculine_archetype: archOr(marsMasc, 'masculine', marsSign),
   };
 
-  const questions = template
+  return template
     .split(/\n{2,}/)
     .map((q) => q.trim())
     .filter(Boolean)
-    .map((q) => `- ${fill(q, vars)}`);
+    .map((q) => fill(q, vars));
+}
 
-  return ['## Some questions to sit with', '', ...questions].join('\n');
+function reflectionQuestions(
+  S: Map<string, string>,
+  signs: Map<string, any>,
+  venusSign: string,
+  marsSign: string,
+  gaps: string[],
+): string {
+  const filled = fillReflectionQuestions(S, signs, venusSign, marsSign, gaps);
+  if (!filled.length) return '';
+  return ['## Some questions to sit with', '', ...filled.map((q) => `- ${q}`)].join('\n');
+}
+
+/**
+ * For the Content → Questions builder: shows how the questions construct for a
+ * given Venus×Mars pairing, plus the raw pieces (qualities/archetypes) pulled in,
+ * so Amelia can see and tune the phrasing.
+ */
+export async function previewReflectionQuestions(prisma: PrismaClient, venusSign: string, marsSign: string) {
+  const signRows = await prisma.sign.findMany();
+  const signs = new Map(signRows.map((s) => [s.name, s]));
+  const blockRows = await prisma.structuralBlock.findMany();
+  const S = new Map(blockRows.map((b) => [b.key, b.template]));
+  const gaps: string[] = [];
+  const questions = fillReflectionQuestions(S, signs, venusSign, marsSign, gaps);
+  const v = signs.get(venusSign);
+  const m = signs.get(marsSign);
+  return {
+    template: S.get('reflection_questions') ?? '',
+    questions,
+    gaps,
+    venusQualities: parseList(v?.qualities ?? null) ?? [],
+    marsQualities: parseList(m?.qualities ?? null) ?? [],
+    venusArchetype: (parseList(v?.feminineArchetypes ?? null) ?? [])[0] ?? null,
+    marsArchetype: (parseList(m?.masculineArchetypes ?? null) ?? [])[0] ?? null,
+  };
 }

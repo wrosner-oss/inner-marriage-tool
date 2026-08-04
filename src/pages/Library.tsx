@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiClient } from '../api.js';
 
 const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
-type Tab = 'signs' | 'structural' | 'combinations';
+type Tab = 'signs' | 'structural' | 'questions' | 'combinations';
 
 export function Library() {
   const [tab, setTab] = useState<Tab>('signs');
@@ -19,14 +19,15 @@ export function Library() {
       <h1>Content</h1>
       <p className="muted">Your reusable copy. Edit anything here and it applies to every reading you generate afterward. <span style={{ color: 'var(--gold)' }}>{status}</span></p>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        {(['signs', 'structural', 'combinations'] as Tab[]).map((t) => (
+        {(['signs', 'structural', 'questions', 'combinations'] as Tab[]).map((t) => (
           <button key={t} className={tab === t ? 'gold' : 'ghost'} onClick={() => setTab(t)}>
-            {t === 'combinations' ? 'Pairing notes' : t === 'structural' ? 'Structural' : 'Signs'}
+            {t === 'combinations' ? 'Pairing notes' : t === 'structural' ? 'Structural' : t === 'questions' ? 'Questions' : 'Signs'}
           </button>
         ))}
       </div>
       {tab === 'signs' && <SignsEditor lib={lib} reload={load} flash={flash} />}
       {tab === 'structural' && <StructuralEditor lib={lib} reload={load} flash={flash} />}
+      {tab === 'questions' && <QuestionsEditor lib={lib} reload={load} flash={flash} />}
       {tab === 'combinations' && <CombinationsEditor flash={flash} />}
     </div>
   );
@@ -123,6 +124,75 @@ function StructuralEditor({ lib, reload, flash }: any) {
       )}
       <textarea style={{ minHeight: 260 }} value={tmpl} onChange={(e) => setTmpl(e.target.value)} />
       <div style={{ marginTop: 12 }}><button className="gold" onClick={save}>Save block</button></div>
+    </div>
+  );
+}
+
+const Q_TOKENS = ['{feminine_sign}', '{masculine_sign}', '{feminine_qualities}', '{masculine_qualities}', '{feminine_qualities_2}', '{masculine_qualities_2}', '{feminine_archetype}', '{masculine_archetype}'];
+
+function QuestionsEditor({ lib, reload, flash }: any) {
+  const [tmpl, setTmpl] = useState(lib.structural.find((b: any) => b.key === 'reflection_questions')?.template ?? '');
+  const [venus, setVenus] = useState('Cancer');
+  const [mars, setMars] = useState('Taurus');
+  const [preview, setPreview] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setTmpl(lib.structural.find((b: any) => b.key === 'reflection_questions')?.template ?? ''); }, [lib]);
+
+  const loadPreview = () => {
+    setLoading(true);
+    apiClient.questionsPreview(venus, mars).then((p) => { setPreview(p); setLoading(false); });
+  };
+  useEffect(() => { loadPreview(); }, [venus, mars]);
+
+  const save = async () => {
+    await apiClient.updateStructural('reflection_questions', tmpl);
+    flash('Questions saved ✓');
+    await reload();
+    loadPreview();
+  };
+
+  return (
+    <div>
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>Question templates</h3>
+        <p className="muted" style={{ marginBottom: 6 }}>One question per block (leave a blank line between them). The tokens below get filled from each person's own signs when a reading is generated.</p>
+        <div className="gap-list" style={{ background: '#eef0f6', border: '1px solid #cdd3e6', color: '#4a4f6a' }}>
+          Fill-ins: {Q_TOKENS.map((t) => <code key={t} style={{ marginRight: 8 }}>{t}</code>)}
+        </div>
+        <textarea style={{ minHeight: 240 }} value={tmpl} onChange={(e) => setTmpl(e.target.value)} />
+        <div style={{ marginTop: 12 }}><button className="gold" onClick={save}>Save questions</button></div>
+      </div>
+
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>See how they read</h3>
+        <p className="muted">Pick a sample pairing to preview exactly how the questions construct — this is where wording like "questing for…" shows itself, so you can spot anything that doesn't read right.</p>
+        <div className="row" style={{ marginBottom: 14 }}>
+          <div className="field-pronoun" style={{ flexBasis: 190 }}>
+            <label>Feminine ♀ (Venus)</label>
+            <select value={venus} onChange={(e) => setVenus(e.target.value)}>{SIGNS.map((n) => <option key={n}>{n}</option>)}</select>
+          </div>
+          <div className="field-pronoun" style={{ flexBasis: 190 }}>
+            <label>Masculine ♂ (Mars)</label>
+            <select value={mars} onChange={(e) => setMars(e.target.value)}>{SIGNS.map((n) => <option key={n}>{n}</option>)}</select>
+          </div>
+        </div>
+        {loading || !preview ? <p className="muted">Loading…</p> : (
+          <>
+            <ol style={{ paddingLeft: 20, margin: '0 0 8px' }}>
+              {preview.questions.map((q: string, i: number) => (
+                <li key={i} style={{ marginBottom: 12, fontSize: 15.5, lineHeight: 1.55, color: 'var(--ink)' }}>{q}</li>
+              ))}
+            </ol>
+            <div className="muted" style={{ marginTop: 8, fontSize: 13, lineHeight: 1.7, borderTop: '1px solid var(--hair)', paddingTop: 10 }}>
+              <strong>{venus} qualities (feminine slots):</strong> {preview.venusQualities.join(', ') || '—'}<br />
+              <strong>{mars} qualities (masculine slots):</strong> {preview.marsQualities.join(', ') || '—'}<br />
+              <strong>Archetypes used:</strong> {preview.venusArchetype ?? '—'} (♀) · {preview.marsArchetype ?? '—'} (♂)
+            </div>
+            {preview.gaps?.length > 0 && <div className="gap-list" style={{ marginTop: 10 }}>{preview.gaps.join(' ')}</div>}
+          </>
+        )}
+      </div>
     </div>
   );
 }

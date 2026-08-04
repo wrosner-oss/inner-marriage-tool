@@ -108,5 +108,6 @@ export async function renderParticipantEmail(prisma: PrismaClient, participant: 
     chart,
     customNote: participant.customNote,
     signature: sig?.template ?? null,
+    birth: { date: participant.birthDate, time: participant.birthTime, place: participant.place },
   });
 }

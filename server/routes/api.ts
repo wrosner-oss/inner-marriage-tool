@@ -7,6 +7,7 @@ import {
   AmbiguousPlaceError,
 } from '../lib/reading.js';
 import { gmailConfigured, createGmailDraft, DEFAULT_SUBJECT } from '../lib/gmail.js';
+import { previewReflectionQuestions } from '../lib/assemble.js';
 
 export const api = Router();
 
@@ -260,6 +261,7 @@ api.get('/library', wrap(async (_req: any, res: any) => {
         s.feminineArchetypes ? null : 'feminine archetypes',
         s.masculineArchetypes ? null : 'masculine archetypes',
         s.qualities ? null : 'qualities',
+        s.fuelKeywords ? null : 'fuel keywords',
       ].filter(Boolean),
     })),
     structural,
@@ -278,6 +280,15 @@ api.put('/library/signs/:name', wrap(async (req: any, res: any) => {
   if ('qualities' in b) data.qualities = Array.isArray(b.qualities) && b.qualities.length ? JSON.stringify(b.qualities) : null;
   const s = await prisma.sign.update({ where: { name: req.params.name }, data });
   res.json({ ok: true, name: s.name });
+}));
+
+// Live construction of the reflection questions for a Venus×Mars pairing — for
+// the Content → Questions builder.
+api.get('/library/questions-preview', wrap(async (req: any, res: any) => {
+  const venus = String(req.query.venus ?? '');
+  const mars = String(req.query.mars ?? '');
+  if (!venus || !mars) return res.status(400).json({ error: 'venus and mars are required.' });
+  res.json(await previewReflectionQuestions(prisma, venus, mars));
 }));
 
 api.put('/library/structural/:key', wrap(async (req: any, res: any) => {

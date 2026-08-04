@@ -38,6 +38,7 @@ async function main() {
 
   const html = renderEmail({
     readingText: reading.text,
+    birth: { date: person.date, time: person.time, place: person.place },
     customNote: 'Sarah — it was such a joy having you in the Tuesday circle. This pairing is a beautiful one. 🌙',
     chart: {
       venusSign, marsSign,

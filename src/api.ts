@@ -71,4 +71,5 @@ export const apiClient = {
   updateSign: (name: string, data: any) => req('PUT', `/library/signs/${encodeURIComponent(name)}`, data),
   updateStructural: (key: string, template: string) => req('PUT', `/library/structural/${encodeURIComponent(key)}`, { template }),
   updateCombination: (data: any) => req('PUT', '/library/combination', data),
+  questionsPreview: (venus: string, mars: string) => req<any>('GET', `/library/questions-preview?venus=${encodeURIComponent(venus)}&mars=${encodeURIComponent(mars)}`),
 };

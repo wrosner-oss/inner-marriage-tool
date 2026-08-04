@@ -28,6 +28,7 @@ export interface RenderInput {
   chart: RenderChart;
   customNote?: string | null;
   signature?: string | null;
+  birth?: { date: string; time: string | null; place: string } | null;
 }
 
 const C = {
@@ -181,8 +182,26 @@ function renderBlock(block: string): string {
   return paragraph(t);
 }
 
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** "August 2, 1990 at 6:30 AM · Los Angeles, CA" (time omitted if unknown). */
+function formatBirth(birth: { date: string; time: string | null; place: string }): string {
+  let dateStr = birth.date;
+  const md = /^(\d{4})-(\d{2})-(\d{2})$/.exec(birth.date);
+  if (md) dateStr = `${MONTHS[Number(md[2]) - 1]} ${Number(md[3])}, ${md[1]}`;
+  let timeStr = '';
+  const mt = birth.time && /^(\d{1,2}):(\d{2})$/.exec(birth.time);
+  if (mt) {
+    const hh = Number(mt[1]);
+    const ampm = hh < 12 ? 'AM' : 'PM';
+    const h12 = ((hh + 11) % 12) + 1;
+    timeStr = ` at ${h12}:${mt[2]} ${ampm}`;
+  }
+  return `${dateStr}${timeStr} &middot; ${esc(birth.place)}`;
+}
+
 export function renderEmail(input: RenderInput): string {
-  const { readingText, chart, customNote, signature } = input;
+  const { readingText, chart, customNote, signature, birth } = input;
   const blocks = readingText.split(/\n{2,}/);
 
   const body: string[] = [];
@@ -227,7 +246,8 @@ export function renderEmail(input: RenderInput): string {
       <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:${C.cream};border-radius:6px;">
         <tr><td style="padding:44px 46px;font-family:Georgia,'Times New Roman',serif;">
           <h1 style="font-size:28px;color:${C.plum};text-align:center;margin:0 0 4px;font-weight:normal;letter-spacing:.5px;">Your Inner Marriage</h1>
-          <div style="text-align:center;color:${C.gold};font-style:italic;font-size:14px;margin-bottom:28px;">according to Shamanic Astrology</div>
+          <div style="text-align:center;color:${C.gold};font-style:italic;font-size:14px;margin-bottom:${birth ? '18' : '28'}px;">according to Shamanic Astrology</div>
+          ${birth ? `<div style="text-align:center;font-size:12.5px;color:${C.muted};background:${C.panelBg};border:1px solid ${C.panelBorder};border-radius:6px;padding:9px 14px;margin:0 0 26px;"><span style="text-transform:uppercase;letter-spacing:1.5px;font-size:10.5px;color:#9c6f2e;">Based on your birth</span><br>${formatBirth(birth)}</div>` : ''}
           ${body.join('\n          ')}
         </td></tr>
       </table>
