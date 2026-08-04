@@ -77,18 +77,29 @@ export async function buildReading(
   // Section header naming both signs
   parts.push(fill(S.get('section_header') ?? '', { venus_sign: venusSign, mars_sign: marsSign }));
 
+  const sameSign = venusSign === marsSign;
+
   // Double-sign framing when Venus == Mars
-  if (venusSign === marsSign) {
+  if (sameSign) {
     const df = S.get('double_sign_framing');
     if (df) parts.push(fill(df, { sign: venusSign, element: signs.get(venusSign)!.element }));
   }
 
-  parts.push(signBlock(signs, venusSign, 'feminine', gaps));
-  parts.push(signBlock(signs, marsSign, 'masculine', gaps));
+  if (sameSign) {
+    // One combined section — don't duplicate the identity/description twice.
+    parts.push(combinedSignBlock(signs, venusSign, gaps));
+  } else {
+    parts.push(signBlock(signs, venusSign, 'feminine', gaps));
+    parts.push(signBlock(signs, marsSign, 'masculine', gaps));
+  }
 
-  // Right relationship (+ addon when the person uses He)
+  // Right relationship (+ addon when the person uses He, + same-sign paragraph)
   let rr = S.get('right_relationship') ?? '';
   if (pronoun === 'He') rr += S.get('right_relationship_male_addon') ?? '';
+  if (sameSign) {
+    const same = S.get('right_relationship_same_sign_addon');
+    if (same && same.trim()) rr += `\n\n${fill(same, { feminine_sign: venusSign, masculine_sign: marsSign })}`;
+  }
   parts.push(`## Right relationship\n\n${rr}`);
 
   // Optional per-pairing note (kept as an optional touch Amelia can add).
@@ -144,6 +155,44 @@ function signBlock(
     const gap = `No ${polarity} archetype list on file for ${sign}.`;
     gaps.push(gap);
     lines.push(`*${GAP_MARKER}: ${gap} Fill in a short archetype list here before sending.*`);
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Used when Venus and Mars are the same sign: one heading and one identity/
+ * description (not duplicated), but both archetype lists (they still differ).
+ */
+function combinedSignBlock(signs: Map<string, any>, sign: string, gaps: string[]): string {
+  const data = signs.get(sign)!;
+  const lines: string[] = [`## Your feminine & masculine side, in ${sign}`, ''];
+
+  if (data.identity) {
+    lines.push(data.identity);
+  } else {
+    const gap = `No full ${sign} identity paragraph on file — only a short fragment exists.`;
+    gaps.push(gap);
+    lines.push(`*${GAP_MARKER}: ${gap} Write the full "I am ${sign}..." paragraph here before sending.*`);
+    if (data.identityFragment) lines.push(`\n(Fragment on file, for reference: "${data.identityFragment}")`);
+  }
+
+  if (data.descriptive) {
+    lines.push('');
+    lines.push(data.descriptive);
+  }
+
+  for (const polarity of ['feminine', 'masculine'] as const) {
+    const arch = parseList(polarity === 'feminine' ? data.feminineArchetypes : data.masculineArchetypes);
+    lines.push('');
+    if (arch) {
+      const label = polarity === 'feminine' ? 'Feminine archetypes' : 'Masculine archetypes';
+      lines.push(`**${label}:** ${arch.join(', ')}`);
+    } else {
+      const gap = `No ${polarity} archetype list on file for ${sign}.`;
+      gaps.push(gap);
+      lines.push(`*${GAP_MARKER}: ${gap} Fill in a short archetype list here before sending.*`);
+    }
   }
 
   return lines.join('\n');

@@ -87,6 +87,15 @@ async function main() {
     await prisma.structuralBlock.create({ data: { key: 'signature', template: signature } });
   }
 
+  // Extra final paragraph in "Right relationship" when Venus and Mars share a sign.
+  // {feminine_sign} and {masculine_sign} both resolve to that same sign.
+  const sameSignAddon =
+    'This is true in terms of your generalized or archetypal masculine and feminine as well as the special flavor you bring in through your birth chart. The generalized masculine is the part that puts your energy and ideas out into the world and also the part that holds space for your generalized feminine — your intuition and life force energy — to flow. Since your masculine and feminine are both in {feminine_sign}, you might find it easier to think of this in terms of the generalized masculine and feminine… AND your {masculine_sign} side is huge and key to everything.';
+  const sameSignExisting = await prisma.structuralBlock.findUnique({ where: { key: 'right_relationship_same_sign_addon' } });
+  if (!sameSignExisting) {
+    await prisma.structuralBlock.create({ data: { key: 'right_relationship_same_sign_addon', template: sameSignAddon } });
+  }
+
   // Create-if-absent only — existing signs keep whatever Amelia has edited.
   for (const [name, s] of Object.entries(lib.signs)) {
     const existing = await prisma.sign.findUnique({ where: { name } });
