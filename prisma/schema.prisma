@@ -75,8 +75,9 @@ model Sign {
   // the Mars sign's masculineQualities. `qualities` is the legacy shared list,
   // kept as a fallback / migration source.
   qualities           String? // JSON array (legacy shared list; fallback)
-  feminineQualities   String? // JSON array
-  masculineQualities  String? // JSON array
+  feminineQualities   String? // JSON array (legacy; superseded by feminineSupport)
+  masculineQualities  String? // JSON array — the Mars-sign skills for the "(...)" slot
+  feminineSupport     String? // JSON array — what THIS (Venus) sign's feminine is supported toward
   fuelKeywords        String?
 }
 

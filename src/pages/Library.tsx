@@ -61,8 +61,8 @@ function SignsEditor({ lib, reload, flash }: any) {
       feminineQuestionArchetype: f.feminineQuestionArchetype ?? '',
       masculineQuestionArchetype: f.masculineQuestionArchetype ?? '',
       qualities: (f.qualities || []).filter(Boolean),
-      feminineQualities: (f.feminineQualities || []).filter(Boolean),
       masculineQualities: (f.masculineQualities || []).filter(Boolean),
+      feminineSupport: (f.feminineSupport || []).filter(Boolean),
     });
     flash(`${sel} saved ✓`); reload();
   };
@@ -125,15 +125,15 @@ function SignsEditor({ lib, reload, flash }: any) {
       </div>
       <p className="muted" style={{ margin: '4px 0 0' }}>These pick which single archetype appears in "Is your ___ serving your ___?" — the full lists above still show in the email.</p>
       <div style={{ height: 12 }} />
-      <label>Qualities — sampled into the reflection questions (one per line)</label>
+      <label>Reflection-question content (one phrase per line — the question picks one)</label>
       <div className="row">
         <div className="grow">
-          <p className="muted" style={{ margin: '0 0 4px' }}>Feminine (Venus role — "…questing for {'{'}these{'}'}")</p>
-          <textarea style={{ minHeight: 120 }} value={(f.feminineQualities || []).join('\n')} placeholder={'nurturing what she loves\ntending what is growing\ncreating a warm home'} onChange={(e) => setF({ ...f, feminineQualities: e.target.value.split('\n') })} />
+          <p className="muted" style={{ margin: '0 0 4px' }}>Masculine skills (Mars role) — fills "using his skills ({'{'}…{'}'})"</p>
+          <textarea style={{ minHeight: 120 }} value={(f.masculineQualities || []).join('\n')} placeholder={'creating balance, safe space, fairness, and working as a team\ndiplomacy and care'} onChange={(e) => setF({ ...f, masculineQualities: e.target.value.split('\n') })} />
         </div>
         <div className="grow">
-          <p className="muted" style={{ margin: '0 0 4px' }}>Masculine (Mars role — "using his skills ({'{'}these{'}'})")</p>
-          <textarea style={{ minHeight: 120 }} value={(f.masculineQualities || []).join('\n')} placeholder={'building something solid\nworking with his hands\npresence and patience'} onChange={(e) => setF({ ...f, masculineQualities: e.target.value.split('\n') })} />
+          <p className="muted" style={{ margin: '0 0 4px' }}>Feminine — how she's supported (Venus role) — fills "…support her to {'{'}…{'}'}"</p>
+          <textarea style={{ minHeight: 120 }} value={(f.feminineSupport || []).join('\n')} placeholder={'truly shine and enter the depths of her emotions\ngo deep and bring her medicine to the world'} onChange={(e) => setF({ ...f, feminineSupport: e.target.value.split('\n') })} />
         </div>
       </div>
       <div style={{ height: 12 }} />
@@ -171,7 +171,7 @@ function StructuralEditor({ lib, reload, flash }: any) {
   );
 }
 
-const Q_TOKENS = ['{feminine_sign}', '{masculine_sign}', '{feminine_qualities}', '{masculine_qualities}', '{feminine_qualities_2}', '{masculine_qualities_2}', '{feminine_archetype}', '{masculine_archetype}'];
+const Q_TOKENS = ['{feminine_sign}', '{masculine_sign}', '{masculine_qualities}', '{masculine_qualities_2}', '{feminine_support}', '{feminine_support_2}', '{feminine_archetype}', '{masculine_archetype}'];
 
 function QuestionsEditor({ lib, reload, flash }: any) {
   const [tmpl, setTmpl] = useState(lib.structural.find((b: any) => b.key === 'reflection_questions')?.template ?? '');
@@ -228,8 +228,8 @@ function QuestionsEditor({ lib, reload, flash }: any) {
               ))}
             </ol>
             <div className="muted" style={{ marginTop: 8, fontSize: 13, lineHeight: 1.7, borderTop: '1px solid var(--hair)', paddingTop: 10 }}>
-              <strong>{venus} qualities (feminine slots):</strong> {preview.venusQualities.join(', ') || '—'}<br />
-              <strong>{mars} qualities (masculine slots):</strong> {preview.marsQualities.join(', ') || '—'}<br />
+              <strong>{mars} masculine skills:</strong> {preview.marsQualities.join(' · ') || '—'}<br />
+              <strong>{venus} feminine — how she's supported:</strong> {preview.venusSupport.join(' · ') || '—'}<br />
               <strong>Archetypes used:</strong> {preview.venusArchetype ?? '—'} (♀) · {preview.marsArchetype ?? '—'} (♂)
             </div>
             {preview.gaps?.length > 0 && <div className="gap-list" style={{ marginTop: 10 }}>{preview.gaps.join(' ')}</div>}

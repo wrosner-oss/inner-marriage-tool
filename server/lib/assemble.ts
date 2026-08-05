@@ -222,47 +222,58 @@ function fillReflectionQuestions(
   const template = S.get('reflection_questions');
   if (!template || !template.trim()) return [];
 
-  // Feminine slots draw from the Venus sign's feminine qualities, masculine slots
-  // from the Mars sign's masculine qualities (fall back to the shared list).
   const vData = signs.get(venusSign);
   const mData = signs.get(marsSign);
-  const venusQ = parseList(vData?.feminineQualities ?? null) ?? parseList(vData?.qualities ?? null) ?? [];
-  const marsQ = parseList(mData?.masculineQualities ?? null) ?? parseList(mData?.qualities ?? null) ?? [];
+  // Masculine skills come from the Mars sign; feminine support from the Venus
+  // sign. Each entry is a complete phrase, so we pick ONE (not a joined sample).
+  // No cross-fallback: masculine *skills* and feminine *support* are distinct
+  // shapes, so a missing one should flag a gap, not borrow the wrong content.
+  const marsQ = parseList(mData?.masculineQualities ?? null) ?? [];
+  const venusSupport = parseList(vData?.feminineSupport ?? null) ?? [];
   const venusFem = parseList(vData?.feminineArchetypes ?? null) ?? [];
   const marsMasc = parseList(mData?.masculineArchetypes ?? null) ?? [];
 
-  // Two distinct-ish samples per sign for the "…" and "additional …" slots.
-  const femA = venusQ.slice(0, 3);
-  const femB = venusQ.slice(3, 5).length ? venusQ.slice(3, 5) : venusQ.slice(0, 2);
-  const mascA = marsQ.slice(0, 3);
-  const mascB = marsQ.slice(3, 5).length ? marsQ.slice(3, 5) : marsQ.slice(0, 2);
+  // Pick one phrase, and a distinct second one where available.
+  const pick = (arr: string[], i: number) => arr[i] ?? arr[0];
 
-  const need = (arr: string[], what: string, sign: string): string => {
-    if (arr.length) return joinNice(arr);
-    gaps.push(`No qualities on file for ${sign} — needed for the reflection questions (${what}).`);
-    return `[${GAP_MARKER}: add ${sign} qualities]`;
+  const needMasc = (i: number): string => {
+    const v = pick(marsQ, i);
+    if (v) return v;
+    gaps.push(`No masculine skills on file for ${marsSign} — needed for the reflection questions.`);
+    return `[${GAP_MARKER}: add ${marsSign} masculine skills]`;
+  };
+  const needSupport = (i: number): string => {
+    const v = pick(venusSupport, i);
+    if (v) return v;
+    gaps.push(`No "feminine support" on file for ${venusSign} — needed for the reflection questions.`);
+    return `[${GAP_MARKER}: add ${venusSign} feminine support]`;
   };
   // "The Vision Quest Amazon" -> "Vision Quest Amazon" so the template reads
   // "Is your Vision Quest Amazon serving…", not "Is your The Vision Quest Amazon…".
   const stripArticle = (s: string) => s.replace(/^(the|a|an)\s+/i, '');
-  // Use Amelia's chosen question archetype if set; otherwise fall back to the
-  // first in the list (which is what happened before this was configurable).
   const archOr = (chosen: string | null | undefined, arr: string[], polarity: string, sign: string): string => {
-    const pick = chosen && chosen.trim() ? chosen.trim() : arr[0];
-    if (pick) return stripArticle(pick);
+    const chosenPick = chosen && chosen.trim() ? chosen.trim() : arr[0];
+    if (chosenPick) return stripArticle(chosenPick);
     gaps.push(`No ${polarity} archetype on file for ${sign} — needed for the reflection questions.`);
     return `[${GAP_MARKER}: add ${sign} ${polarity} archetype]`;
   };
 
+  const feminineSupport = needSupport(0);
+  const feminineSupport2 = needSupport(1);
+  const masculineQualities = needMasc(0);
+  const masculineQualities2 = needMasc(1);
   const vars: Record<string, string> = {
     feminine_sign: venusSign,
     masculine_sign: marsSign,
-    feminine_qualities: need(femA, 'feminine qualities', venusSign),
-    feminine_qualities_2: need(femB, 'more feminine qualities', venusSign),
-    masculine_qualities: need(mascA, 'masculine qualities', marsSign),
-    masculine_qualities_2: need(mascB, 'more masculine qualities', marsSign),
-    feminine_archetype: archOr(signs.get(venusSign)?.feminineQuestionArchetype, venusFem, 'feminine', venusSign),
-    masculine_archetype: archOr(signs.get(marsSign)?.masculineQuestionArchetype, marsMasc, 'masculine', marsSign),
+    masculine_qualities: masculineQualities,
+    masculine_qualities_2: masculineQualities2,
+    feminine_support: feminineSupport,
+    feminine_support_2: feminineSupport2,
+    // Legacy tokens, mapped so any un-upgraded custom template still fills.
+    feminine_qualities: feminineSupport,
+    feminine_qualities_2: feminineSupport2,
+    feminine_archetype: archOr(vData?.feminineQuestionArchetype, venusFem, 'feminine', venusSign),
+    masculine_archetype: archOr(mData?.masculineQuestionArchetype, marsMasc, 'masculine', marsSign),
   };
 
   return template
@@ -302,8 +313,8 @@ export async function previewReflectionQuestions(prisma: PrismaClient, venusSign
     template: S.get('reflection_questions') ?? '',
     questions,
     gaps,
-    venusQualities: parseList(v?.feminineQualities ?? null) ?? parseList(v?.qualities ?? null) ?? [],
-    marsQualities: parseList(m?.masculineQualities ?? null) ?? parseList(m?.qualities ?? null) ?? [],
+    venusSupport: parseList(v?.feminineSupport ?? null) ?? [],
+    marsQualities: parseList(m?.masculineQualities ?? null) ?? [],
     venusArchetype: (v?.feminineQuestionArchetype?.trim() || (parseList(v?.feminineArchetypes ?? null) ?? [])[0]) ?? null,
     marsArchetype: (m?.masculineQuestionArchetype?.trim() || (parseList(m?.masculineArchetypes ?? null) ?? [])[0]) ?? null,
   };

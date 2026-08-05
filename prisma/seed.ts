@@ -77,6 +77,57 @@ const STARTER_CREATION_TEAM: Record<string, string> = {
     'Pisces teaches the way of the mystic. Pisces are deeply spiritual and intuitive, connected to Big Love, Source, and the Divine. (Placeholder from the rising-sign note — worth expanding with Amelia’s full Pisces copy.)',
 };
 
+// Masculine skills per Mars sign (the "(...)" parenthetical). Each line is a
+// complete phrase; the question samples one. From Amelia's email sweep.
+// Aquarius omitted on purpose — no sourced email where Mars was in Aquarius.
+const STARTER_MASCULINE_QUALITIES: Record<string, string[]> = {
+  Aries: ['energy, courage, and spontaneity', 'taking risks'],
+  Taurus: ['creating security, beauty, and a sensuous experience of the earthly realm'],
+  Gemini: ['creativity and imagination'],
+  Cancer: ['nurturing, protecting, and creating emotional safety', 'showing up as a devoted protector and partner'],
+  Leo: ['leadership, courage, and King-like steadiness', 'confidence, leadership, and radiance', 'creating the container', 'warmth and self-love'],
+  Virgo: ['being organized, practical, dependable, and productive, with a capacity for handling the details of the earthly realm', 'creating sacred space', 'dedicated work and honoring the cycles', 'nurturance'],
+  Libra: ['creating balance, creating safe space, making sure everyone gets a chance to be heard, fairness, and working as a team', 'diplomacy and care', 'balance, fairness, and collaboration'],
+  Scorpio: ['going deep, intuition, and the full range of emotion', 'sorcerer-magic and mastery over his emotions'],
+  Sagittarius: ['questing for spirit, knowledge, exploration, and growth', 'his love of exploration, learning, and growth', 'devotion'],
+  Capricorn: ['responsibility, effectiveness, and efficiency', 'creating structures and goals'],
+  Pisces: ['deep spirituality and intuition', 'big love and compassion'],
+};
+
+// What each Venus (feminine) sign is "supported to." Fills "…support her to {X}".
+// Virgo, Capricorn, Pisces omitted — no sourced email had them as Venus.
+const STARTER_FEMININE_SUPPORT: Record<string, string[]> = {
+  Aries: ['birth the new and protect what she values', 'be courageous and spontaneous, and have adventure, excitement, and play', 'explore, play, and follow her impulses'],
+  Taurus: ['feel secure — and to fully enjoy life', 'have more room for her pleasure and expression'],
+  Gemini: ['have more play, novelty, and creative stimulation', 'express her curiosity and creative voice'],
+  Cancer: ['grow what she longs to grow'],
+  Leo: ['blossom', 'flourish in her creativity, expansiveness, and joy'],
+  Libra: ['create balanced relationships where she can thrive and feel secure'],
+  Scorpio: ['truly shine and enter the depths of her emotions and the mysteries of life', 'go deep and master her emotions so she can bring her medicine to the world'],
+  Sagittarius: ['live a life where she can truly thrive', 'have the freedom and experiences she desires'],
+  Aquarius: ['play in the expanded spaces she so loves and needs', 'shine and bring her medicine to the world', 'be as original, expansive, and unconventional as she truly is'],
+};
+
+// The reflection-question defaults. If a DB still has the OLD default verbatim
+// (i.e. Amelia hasn't customized it), we upgrade it to the NEW shape.
+const OLD_DEFAULT_QUESTIONS = [
+  'Which of these aspects of you have gotten the most attention in the past? Does your feminine have what she needs?',
+  'What would it look like for your {masculine_sign} side to support and serve your {feminine_sign} side with total devotion?',
+  'Is she getting enough time questing for {feminine_qualities}?',
+  'Is your masculine using his skills ({masculine_qualities}, for example) to provide a situation and life where she can thrive?',
+  'Is he using his {masculine_qualities_2} with her (and not just with everyone else) in ways that serve her and give her the {feminine_qualities_2} she desires?',
+  'Is your {masculine_archetype} serving your {feminine_archetype}?',
+].join('\n\n');
+
+const NEW_DEFAULT_QUESTIONS = [
+  'Which of these aspects of you have gotten the most attention in the past? Does your feminine have what she needs?',
+  'What would it look like for your {masculine_sign} side to support and serve your {feminine_sign} side with total devotion?',
+  'Is your masculine using his skills ({masculine_qualities}) in ways that support her to {feminine_support}?',
+  'Is he extending those gifts to her specifically — and not just to everyone else?',
+  'Is he creating a situation for her to {feminine_support_2}?',
+  'Is your {masculine_archetype} serving your {feminine_archetype}?',
+].join('\n\n');
+
 async function main() {
   const raw = readFileSync(join(here, 'seed-data', 'content_library.json'), 'utf-8');
   const lib: Library = JSON.parse(raw);
@@ -87,23 +138,15 @@ async function main() {
     if (!existing) await prisma.structuralBlock.create({ data: { key, template } });
   }
 
-  // The standard reflection questions: one editable set of templates with slots
-  // filled per-person from their signs. Separated by blank lines (one per line).
-  // Tokens: {feminine_sign} {masculine_sign} {feminine_qualities}
-  // {masculine_qualities} {feminine_qualities_2} {masculine_qualities_2}
-  // {feminine_archetype} {masculine_archetype}
-  const reflectionQuestions = [
-    'Which of these aspects of you have gotten the most attention in the past? Does your feminine have what she needs?',
-    'What would it look like for your {masculine_sign} side to support and serve your {feminine_sign} side with total devotion?',
-    'Is she getting enough time questing for {feminine_qualities}?',
-    'Is your masculine using his skills ({masculine_qualities}, for example) to provide a situation and life where she can thrive?',
-    'Is he using his {masculine_qualities_2} with her (and not just with everyone else) in ways that serve her and give her the {feminine_qualities_2} she desires?',
-    'Is your {masculine_archetype} serving your {feminine_archetype}?',
-  ].join('\n\n');
-  // Only seed if absent, so we never overwrite Amelia's edits on re-seed.
+  // Reflection questions: create with the new default if absent. If a DB still
+  // has the OLD default verbatim (never customized), upgrade it to the new
+  // "…support her to {feminine_support}" shape. Leave any customized text alone.
   const existing = await prisma.structuralBlock.findUnique({ where: { key: 'reflection_questions' } });
   if (!existing) {
-    await prisma.structuralBlock.create({ data: { key: 'reflection_questions', template: reflectionQuestions } });
+    await prisma.structuralBlock.create({ data: { key: 'reflection_questions', template: NEW_DEFAULT_QUESTIONS } });
+  } else if (existing.template.trim() === OLD_DEFAULT_QUESTIONS.trim()) {
+    await prisma.structuralBlock.update({ where: { key: 'reflection_questions' }, data: { template: NEW_DEFAULT_QUESTIONS } });
+    console.log('Upgraded reflection_questions to the new support-based template.');
   }
 
   // Signature footer (name + links). Placeholder URLs — Amelia edits under
@@ -161,13 +204,24 @@ async function main() {
     }
   }
 
-  // Seed the split feminine/masculine quality lists from the existing shared
-  // `qualities` list, only where they're still empty — a starting point until
-  // Amelia supplies the real gendered qualities. Preserves any edits.
+  // Seed the real masculine qualities (per Mars sign) and feminine support (per
+  // Venus sign) from Amelia's email sweep. Masculine overwrites the earlier
+  // placeholder (which equals `qualities`) but never a genuine edit; feminine
+  // support is a new field, seeded where empty.
   for (const s of await prisma.sign.findMany()) {
     const data: any = {};
-    if (!s.feminineQualities && s.qualities) data.feminineQualities = s.qualities;
-    if (!s.masculineQualities && s.qualities) data.masculineQualities = s.qualities;
+    const realMasc = STARTER_MASCULINE_QUALITIES[s.name];
+    if (realMasc && (!s.masculineQualities || s.masculineQualities === s.qualities)) {
+      data.masculineQualities = JSON.stringify(realMasc);
+    } else if (!realMasc && s.masculineQualities && s.masculineQualities === s.qualities) {
+      // No sourced masculine content for this Mars sign (Aquarius): clear the
+      // earlier placeholder so it flags as a gap rather than borrowing qualities.
+      data.masculineQualities = null;
+    }
+    const realFem = STARTER_FEMININE_SUPPORT[s.name];
+    if (realFem && !s.feminineSupport) {
+      data.feminineSupport = JSON.stringify(realFem);
+    }
     if (Object.keys(data).length) await prisma.sign.update({ where: { name: s.name }, data });
   }
 

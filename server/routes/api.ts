@@ -258,8 +258,8 @@ api.get('/library', wrap(async (_req: any, res: any) => {
       feminineQuestionArchetype: s.feminineQuestionArchetype,
       masculineQuestionArchetype: s.masculineQuestionArchetype,
       qualities: parseJsonArray(s.qualities),
-      feminineQualities: parseJsonArray(s.feminineQualities),
       masculineQualities: parseJsonArray(s.masculineQualities),
+      feminineSupport: parseJsonArray(s.feminineSupport),
       fuelKeywords: s.fuelKeywords,
       gaps: [
         s.identity ? null : 'identity',
@@ -283,8 +283,8 @@ api.put('/library/signs/:name', wrap(async (req: any, res: any) => {
   if ('feminineArchetypes' in b) data.feminineArchetypes = Array.isArray(b.feminineArchetypes) && b.feminineArchetypes.length ? JSON.stringify(b.feminineArchetypes) : null;
   if ('masculineArchetypes' in b) data.masculineArchetypes = Array.isArray(b.masculineArchetypes) && b.masculineArchetypes.length ? JSON.stringify(b.masculineArchetypes) : null;
   if ('qualities' in b) data.qualities = Array.isArray(b.qualities) && b.qualities.length ? JSON.stringify(b.qualities) : null;
-  if ('feminineQualities' in b) data.feminineQualities = Array.isArray(b.feminineQualities) && b.feminineQualities.length ? JSON.stringify(b.feminineQualities) : null;
   if ('masculineQualities' in b) data.masculineQualities = Array.isArray(b.masculineQualities) && b.masculineQualities.length ? JSON.stringify(b.masculineQualities) : null;
+  if ('feminineSupport' in b) data.feminineSupport = Array.isArray(b.feminineSupport) && b.feminineSupport.length ? JSON.stringify(b.feminineSupport) : null;
   const s = await prisma.sign.update({ where: { name: req.params.name }, data });
   res.json({ ok: true, name: s.name });
 }));
