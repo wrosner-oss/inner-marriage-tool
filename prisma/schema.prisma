@@ -61,6 +61,7 @@ model Sign {
   name                String  @id // Aries .. Pisces
   element             String  // fire | earth | air | water
   identity            String? // verbatim "I am [Sign]..." paragraph (null = gap)
+  creationTeam        String? // third-person version of the identity ("[Sign] teaches...") — used in the P.P.S.
   identityFragment    String? // fallback fragment for signs with no full identity
   descriptive         String?
   feminineArchetypes  String? // JSON array (null = gap)

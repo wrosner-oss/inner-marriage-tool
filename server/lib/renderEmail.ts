@@ -29,6 +29,7 @@ export interface RenderInput {
   customNote?: string | null;
   signature?: string | null;
   birth?: { date: string; time: string | null; place: string } | null;
+  pps?: { intro: string; items: { label: string; text: string | null }[] } | null;
 }
 
 const C = {
@@ -200,8 +201,26 @@ function formatBirth(birth: { date: string; time: string | null; place: string }
   return `${dateStr}${timeStr} &middot; ${esc(birth.place)}`;
 }
 
+/** The P.P.S. "creation team" section: intro + one entry per available planet. */
+function ppsSection(pps: { intro: string; items: { label: string; text: string | null }[] }): string {
+  const rows = pps.items
+    .filter((it) => it.text && it.text.trim())
+    .map(
+      (it) =>
+        `<h3 style="font-family:Georgia,serif;font-size:16.5px;color:${C.plum};font-weight:normal;margin:18px 0 6px;">${esc(it.label)}</h3>` +
+        `<p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:${C.ink};">${inline(it.text!.trim())}</p>`,
+    )
+    .join('');
+  if (!rows) return '';
+  return (
+    rule +
+    `<p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:${C.ink};">${inline(pps.intro.trim())}</p>` +
+    rows
+  );
+}
+
 export function renderEmail(input: RenderInput): string {
-  const { readingText, chart, customNote, signature, birth } = input;
+  const { readingText, chart, customNote, signature, birth, pps } = input;
   const blocks = readingText.split(/\n{2,}/);
 
   const body: string[] = [];
@@ -236,6 +255,9 @@ export function renderEmail(input: RenderInput): string {
 
   // The full chart goes at the very bottom, as a P.S. after the signature.
   body.push(chartList(chart));
+
+  // The creation-team section follows as a P.P.S. below the P.S.
+  if (pps && pps.intro && pps.items.some((i) => i.text && i.text.trim())) body.push(ppsSection(pps));
 
   return `<!doctype html>
 <html>

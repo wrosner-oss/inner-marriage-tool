@@ -103,11 +103,31 @@ export async function renderParticipantEmail(prisma: PrismaClient, participant: 
   const chart = await renderChartFor(prisma, participant);
   if (!chart || !participant.readingText) return null;
   const sig = await prisma.structuralBlock.findUnique({ where: { key: 'signature' } });
+
+  // Build the P.P.S. "creation team" section from four chart points.
+  const signRows = await prisma.sign.findMany();
+  const ctOf = (sign: string | null): string | null =>
+    sign ? signRows.find((s) => s.name === sign)?.creationTeam ?? null : null;
+  const ppsIntro = await prisma.structuralBlock.findUnique({ where: { key: 'pps_intro' } });
+  const stored: StoredChart | null = participant.chartJson ? JSON.parse(participant.chartJson) : null;
+  const pps = ppsIntro?.template && stored
+    ? {
+        intro: ppsIntro.template,
+        items: [
+          { label: 'Moon: what you came into the world already knowing', text: ctOf(stored.planets.Moon?.sign ?? null) },
+          { label: 'Rising (Ascendant): what you are here to learn', text: ctOf(stored.ascendant) },
+          { label: 'Jupiter: the quickest path to learning it', text: ctOf(stored.planets.Jupiter?.sign ?? null) },
+          { label: 'Mid-Heaven: the qualities you need to bring your purpose into form', text: ctOf(stored.midheaven) },
+        ],
+      }
+    : null;
+
   return renderEmail({
     readingText: participant.readingText,
     chart,
     customNote: participant.customNote,
     signature: sig?.template ?? null,
     birth: { date: participant.birthDate, time: participant.birthTime, place: participant.place },
+    pps,
   });
 }

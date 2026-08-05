@@ -52,6 +52,7 @@ function SignsEditor({ lib, reload, flash }: any) {
     await apiClient.updateSign(sel, {
       element: f.element,
       identity: f.identity,
+      creationTeam: f.creationTeam,
       identityFragment: f.identityFragment,
       descriptive: f.descriptive,
       fuelKeywords: f.fuelKeywords,
@@ -86,6 +87,9 @@ function SignsEditor({ lib, reload, flash }: any) {
       {f.gaps?.length > 0 && <div className="gap-list">Missing: {f.gaps.join(', ')}</div>}
       <label>Identity paragraph ("I am {sel}…")</label>
       <textarea style={{ minHeight: 150 }} value={f.identity ?? ''} onChange={(e) => setF({ ...f, identity: e.target.value })} />
+      <div style={{ height: 12 }} />
+      <label>Creation Team ("{sel} teaches…") — third-person version, used in the P.P.S.</label>
+      <textarea style={{ minHeight: 130 }} value={f.creationTeam ?? ''} onChange={(e) => setF({ ...f, creationTeam: e.target.value })} />
       <div style={{ height: 12 }} />
       <label>Descriptive line</label>
       <textarea style={{ minHeight: 70 }} value={f.descriptive ?? ''} onChange={(e) => setF({ ...f, descriptive: e.target.value })} />

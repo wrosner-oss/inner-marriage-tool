@@ -47,6 +47,36 @@ const STARTER_QUALITIES: Record<string, string[]> = {
   Pisces: ['connecting to the Divine', 'mystical intuition', 'spiritual surrender', 'compassion and Big Love', 'time in the unseen'],
 };
 
+// Third-person "Creation Team" copy for each sign — a faithful rewrite of each
+// sign's own identity paragraph out of first person (Aries text is Amelia's
+// verbatim example). Seeded only where empty; Amelia edits in Content → Signs.
+const STARTER_CREATION_TEAM: Record<string, string> = {
+  Aries:
+    'Aries teaches the meaning of individuation. Aries are active, high spirited, and energetic. They love excitement, adventure, play, and competition. As a sacred warrior, they will fight to defend their belief and protect what they value in life. They like to go first, birth the new, get something started, and lead the way. They are courageous, trusting, decisive, inspired and spontaneous.',
+  Taurus:
+    'Taurus teaches the value of enjoying the earthly realm of matter. Taurus delight in all that looks beautiful, tastes delicious, and feels pleasurable. They love receiving all the exquisite things and gratifications the physical realm has to offer. They know how to take solid steps to fulfill their desires for possessions, wealth, and security. They connect to the divine when they savor and enjoy intimacy through the body and senses.',
+  Gemini:
+    'Gemini teaches the importance of the mind and ideas. Gemini crave fresh experiences, change, fun, games, and imagination. They are versatile and curious and often play the comedian and perpetual youth. They are self-expressive through writing, speaking, or connecting to the divine muse through their many creative pursuits. They like to communicate, network, and bring news and information.',
+  Cancer:
+    'Cancer teaches the meaning of nurturing. Cancer are the devoted caregiver — to their family, their people, their creations. They love home. They love comfort. They love what is close and meaningful. They are sensitive to vulnerability, and they create safe emotional space for what is tender, young, and growing.',
+  Leo:
+    'Leo teaches the value of radiance. Leo use the key of self-love to turn up their light — and the brighter they shine, the more they inspire others. They are natural leaders, performers, stars, directors, and creators: self-confident, dramatic, regal, openhearted, generous, creative, expansive, powerful, and outgoing. They celebrate life from the center stage of their own heart.',
+  Virgo:
+    'Virgo teaches the significance of dedicated work. Virgo understand and honor patterns, timings, rhythms, and cycles. They access the Priest/ess within to honor the sacred in the natural world through ceremony and ritual. They are organized, practical, dependable, productive, and hard-working, with a tremendous capacity for handling the details of the earthly realm. They are dedicated to doing their sacred work by being in service to the world around them.',
+  Libra:
+    'Libra teaches the importance of balanced relationships. Libra have the capacity to see things from all sides, honor each person’s point of view, balance opposites, consider options, and mediate well. They create safe space for all the gates of awareness to be valued. Their cooperative social skills make them a good partner, hostess, and companion. Relationship is their spiritual path.',
+  Scorpio:
+    'Scorpio teaches the power of feelings. Scorpio fully experience the complete range of feelings, from icy and frozen to hot and steamy, and everything in-between; their training is to master their response to them. They are intense and passionate about discovering what lies well beneath the surface of current awareness. They travel deep into their feeling waters to connect to Source, and use the treasures they discover there to generate life force in themselves and in others. They possess a potent intuition, or sixth sense, and an ability to travel into other realms of consciousness.',
+  Sagittarius:
+    'Sagittarius teaches the significance of expansion. Sagittarius are the dynamic, outgoing, truth-seeking explorer. They constantly quest for expansion by physically and energetically seeking out new ideas and territories. They bring their expanded awareness and discoveries back to share with others as a teacher of philosophy and of evolving states of consciousness. They passionately search for the meaning of life through freedom, growth, and development.',
+  Capricorn:
+    'Capricorn teaches the value of structure and form. Capricorn are the administrator, the mature and wise one, the disciplined teacher, the hard-working leader, the good provider, and the practical businessperson. They are ambitious, responsible, effective, efficient, and goal-oriented as they bring new structures into earthly form. They create organizations and systems designed to last and support generations to come.',
+  Aquarius:
+    'Aquarius teaches the importance of innovation. Aquarius have a cosmic perspective on life and bring radical new ideas to humanity. They are the free-spirited visionary, exploring unconventional territory. They are here for truth, for evolution, for a better world.',
+  Pisces:
+    'Pisces teaches the way of the mystic. Pisces are deeply spiritual and intuitive, connected to Big Love, Source, and the Divine. (Placeholder from the rising-sign note — worth expanding with Amelia’s full Pisces copy.)',
+};
+
 async function main() {
   const raw = readFileSync(join(here, 'seed-data', 'content_library.json'), 'utf-8');
   const lib: Library = JSON.parse(raw);
@@ -96,6 +126,13 @@ async function main() {
     await prisma.structuralBlock.create({ data: { key: 'right_relationship_same_sign_addon', template: sameSignAddon } });
   }
 
+  // Intro sentence for the P.P.S. (creation-team) section.
+  const ppsIntro = 'P.P.S. These planets make up a key part of your creation team, which we’ll discuss more in class.';
+  const ppsExisting = await prisma.structuralBlock.findUnique({ where: { key: 'pps_intro' } });
+  if (!ppsExisting) {
+    await prisma.structuralBlock.create({ data: { key: 'pps_intro', template: ppsIntro } });
+  }
+
   // Create-if-absent only — existing signs keep whatever Amelia has edited.
   for (const [name, s] of Object.entries(lib.signs)) {
     const existing = await prisma.sign.findUnique({ where: { name } });
@@ -123,6 +160,17 @@ async function main() {
       filled++;
     }
   }
+
+  // Fill starter Creation Team copy only where a sign has none yet.
+  let ctFilled = 0;
+  for (const [name, creationTeam] of Object.entries(STARTER_CREATION_TEAM)) {
+    const s = await prisma.sign.findUnique({ where: { name } });
+    if (s && !s.creationTeam) {
+      await prisma.sign.update({ where: { name }, data: { creationTeam } });
+      ctFilled++;
+    }
+  }
+  if (ctFilled) console.log(`Filled starter Creation Team copy for ${ctFilled} sign(s).`);
 
   const signCount = await prisma.sign.count();
   const blockCount = await prisma.structuralBlock.count();

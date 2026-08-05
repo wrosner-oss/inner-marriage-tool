@@ -250,6 +250,7 @@ api.get('/library', wrap(async (_req: any, res: any) => {
       name: s.name,
       element: s.element,
       identity: s.identity,
+      creationTeam: s.creationTeam,
       identityFragment: s.identityFragment,
       descriptive: s.descriptive,
       feminineArchetypes: parseJsonArray(s.feminineArchetypes),
@@ -274,7 +275,7 @@ api.get('/library', wrap(async (_req: any, res: any) => {
 api.put('/library/signs/:name', wrap(async (req: any, res: any) => {
   const b = req.body ?? {};
   const data: any = {};
-  for (const f of ['element', 'identity', 'identityFragment', 'descriptive', 'fuelKeywords', 'feminineQuestionArchetype', 'masculineQuestionArchetype'] as const) {
+  for (const f of ['element', 'identity', 'creationTeam', 'identityFragment', 'descriptive', 'fuelKeywords', 'feminineQuestionArchetype', 'masculineQuestionArchetype'] as const) {
     if (f in b) data[f] = b[f] === '' ? null : b[f];
   }
   if ('feminineArchetypes' in b) data.feminineArchetypes = Array.isArray(b.feminineArchetypes) && b.feminineArchetypes.length ? JSON.stringify(b.feminineArchetypes) : null;

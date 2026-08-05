@@ -35,10 +35,24 @@ async function main() {
 
   const signRows = await prisma.sign.findMany();
   const elementOf = (name: string) => signRows.find((s) => s.name === name)?.element ?? '';
+  const ctOf = (sign: string | null) => (sign ? signRows.find((s) => s.name === sign)?.creationTeam ?? null : null);
+  const ppsIntro = await prisma.structuralBlock.findUnique({ where: { key: 'pps_intro' } });
+  const pps = ppsIntro?.template
+    ? {
+        intro: ppsIntro.template,
+        items: [
+          { label: 'Moon: what you came into the world already knowing', text: ctOf(chart.planets.Moon.sign) },
+          { label: 'Rising (Ascendant): what you are here to learn', text: ctOf(chart.ascendant) },
+          { label: 'Jupiter: the quickest path to learning it', text: ctOf(chart.planets.Jupiter.sign) },
+          { label: 'Mid-Heaven: the qualities you need to bring your purpose into form', text: ctOf(chart.midheaven) },
+        ],
+      }
+    : null;
 
   const html = renderEmail({
     readingText: reading.text,
     birth: { date: person.date, time: person.time, place: person.place },
+    pps,
     customNote: 'Sarah — it was such a joy having you in the Tuesday circle. This pairing is a beautiful one. 🌙',
     chart: {
       venusSign, marsSign,
