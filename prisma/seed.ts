@@ -161,6 +161,16 @@ async function main() {
     }
   }
 
+  // Seed the split feminine/masculine quality lists from the existing shared
+  // `qualities` list, only where they're still empty — a starting point until
+  // Amelia supplies the real gendered qualities. Preserves any edits.
+  for (const s of await prisma.sign.findMany()) {
+    const data: any = {};
+    if (!s.feminineQualities && s.qualities) data.feminineQualities = s.qualities;
+    if (!s.masculineQualities && s.qualities) data.masculineQualities = s.qualities;
+    if (Object.keys(data).length) await prisma.sign.update({ where: { name: s.name }, data });
+  }
+
   // Fill starter Creation Team copy only where a sign has none yet.
   let ctFilled = 0;
   for (const [name, creationTeam] of Object.entries(STARTER_CREATION_TEAM)) {

@@ -222,10 +222,14 @@ function fillReflectionQuestions(
   const template = S.get('reflection_questions');
   if (!template || !template.trim()) return [];
 
-  const venusQ = parseList(signs.get(venusSign)?.qualities) ?? [];
-  const marsQ = parseList(signs.get(marsSign)?.qualities) ?? [];
-  const venusFem = parseList(signs.get(venusSign)?.feminineArchetypes) ?? [];
-  const marsMasc = parseList(signs.get(marsSign)?.masculineArchetypes) ?? [];
+  // Feminine slots draw from the Venus sign's feminine qualities, masculine slots
+  // from the Mars sign's masculine qualities (fall back to the shared list).
+  const vData = signs.get(venusSign);
+  const mData = signs.get(marsSign);
+  const venusQ = parseList(vData?.feminineQualities ?? null) ?? parseList(vData?.qualities ?? null) ?? [];
+  const marsQ = parseList(mData?.masculineQualities ?? null) ?? parseList(mData?.qualities ?? null) ?? [];
+  const venusFem = parseList(vData?.feminineArchetypes ?? null) ?? [];
+  const marsMasc = parseList(mData?.masculineArchetypes ?? null) ?? [];
 
   // Two distinct-ish samples per sign for the "…" and "additional …" slots.
   const femA = venusQ.slice(0, 3);
@@ -298,8 +302,8 @@ export async function previewReflectionQuestions(prisma: PrismaClient, venusSign
     template: S.get('reflection_questions') ?? '',
     questions,
     gaps,
-    venusQualities: parseList(v?.qualities ?? null) ?? [],
-    marsQualities: parseList(m?.qualities ?? null) ?? [],
+    venusQualities: parseList(v?.feminineQualities ?? null) ?? parseList(v?.qualities ?? null) ?? [],
+    marsQualities: parseList(m?.masculineQualities ?? null) ?? parseList(m?.qualities ?? null) ?? [],
     venusArchetype: (v?.feminineQuestionArchetype?.trim() || (parseList(v?.feminineArchetypes ?? null) ?? [])[0]) ?? null,
     marsArchetype: (m?.masculineQuestionArchetype?.trim() || (parseList(m?.masculineArchetypes ?? null) ?? [])[0]) ?? null,
   };

@@ -70,7 +70,13 @@ model Sign {
   // lists above). Null = fall back to the first in the list.
   feminineQuestionArchetype  String?
   masculineQuestionArchetype String?
-  qualities           String? // JSON array of short quality phrases, sampled into the reflection questions
+  // Qualities sampled into the reflection questions. Split by polarity: the
+  // feminine slots use the Venus sign's feminineQualities, the masculine slots
+  // the Mars sign's masculineQualities. `qualities` is the legacy shared list,
+  // kept as a fallback / migration source.
+  qualities           String? // JSON array (legacy shared list; fallback)
+  feminineQualities   String? // JSON array
+  masculineQualities  String? // JSON array
   fuelKeywords        String?
 }
 

@@ -61,6 +61,8 @@ function SignsEditor({ lib, reload, flash }: any) {
       feminineQuestionArchetype: f.feminineQuestionArchetype ?? '',
       masculineQuestionArchetype: f.masculineQuestionArchetype ?? '',
       qualities: (f.qualities || []).filter(Boolean),
+      feminineQualities: (f.feminineQualities || []).filter(Boolean),
+      masculineQualities: (f.masculineQualities || []).filter(Boolean),
     });
     flash(`${sel} saved ✓`); reload();
   };
@@ -123,8 +125,17 @@ function SignsEditor({ lib, reload, flash }: any) {
       </div>
       <p className="muted" style={{ margin: '4px 0 0' }}>These pick which single archetype appears in "Is your ___ serving your ___?" — the full lists above still show in the email.</p>
       <div style={{ height: 12 }} />
-      <label>Qualities (one per line) — sampled into the reflection questions, e.g. "questing for…"</label>
-      <textarea style={{ minHeight: 110 }} value={(f.qualities || []).join('\n')} placeholder={'spiritual truth\nadventure\nexploring new territory\nfreedom'} onChange={(e) => setF({ ...f, qualities: e.target.value.split('\n') })} />
+      <label>Qualities — sampled into the reflection questions (one per line)</label>
+      <div className="row">
+        <div className="grow">
+          <p className="muted" style={{ margin: '0 0 4px' }}>Feminine (Venus role — "…questing for {'{'}these{'}'}")</p>
+          <textarea style={{ minHeight: 120 }} value={(f.feminineQualities || []).join('\n')} placeholder={'nurturing what she loves\ntending what is growing\ncreating a warm home'} onChange={(e) => setF({ ...f, feminineQualities: e.target.value.split('\n') })} />
+        </div>
+        <div className="grow">
+          <p className="muted" style={{ margin: '0 0 4px' }}>Masculine (Mars role — "using his skills ({'{'}these{'}'})")</p>
+          <textarea style={{ minHeight: 120 }} value={(f.masculineQualities || []).join('\n')} placeholder={'building something solid\nworking with his hands\npresence and patience'} onChange={(e) => setF({ ...f, masculineQualities: e.target.value.split('\n') })} />
+        </div>
+      </div>
       <div style={{ height: 12 }} />
       <label>Fuel keywords (Sun-sign "small note")</label>
       <input value={f.fuelKeywords ?? ''} onChange={(e) => setF({ ...f, fuelKeywords: e.target.value })} />
