@@ -58,6 +58,7 @@ export const apiClient = {
   renameClass: (id: string, name: string) => req('PATCH', `/classes/${id}`, { name }),
   deleteClass: (id: string) => req('DELETE', `/classes/${id}`),
 
+  geocode: (q: string) => req<{ status: 'ok' | 'ambiguous' | 'notfound'; place?: Candidate; candidates?: Candidate[]; message?: string }>('GET', `/geocode?q=${encodeURIComponent(q)}`),
   getParticipant: (id: string) => req<Participant & { className: string }>('GET', `/participants/${id}`),
   addParticipant: (classId: string, p: Partial<Participant>) => req<Participant>('POST', `/classes/${classId}/participants`, p),
   updateParticipant: (id: string, p: Partial<Participant>) => req<Participant>('PATCH', `/participants/${id}`, p),

@@ -8,6 +8,7 @@ import {
 } from '../lib/reading.js';
 import { gmailConfigured, createGmailDraft, DEFAULT_SUBJECT } from '../lib/gmail.js';
 import { previewReflectionQuestions } from '../lib/assemble.js';
+import { geocodePlace } from '../lib/geocode.js';
 
 export const api = Router();
 
@@ -90,6 +91,22 @@ api.patch('/classes/:id', wrap(async (req: any, res: any) => {
 api.delete('/classes/:id', wrap(async (req: any, res: any) => {
   await prisma.class.delete({ where: { id: req.params.id } });
   res.status(204).end();
+}));
+
+// Resolve/disambiguate a birthplace at entry time (no reading generated).
+api.get('/geocode', wrap(async (req: any, res: any) => {
+  const q = String(req.query.q ?? '').trim();
+  if (!q) return res.status(400).json({ error: 'A place is required.' });
+  try {
+    const place = await geocodePlace(q);
+    res.json({ status: 'ok', place });
+  } catch (e) {
+    if (e instanceof AmbiguousPlaceError) {
+      if (e.candidates.length === 0) return res.json({ status: 'notfound', message: e.message });
+      return res.json({ status: 'ambiguous', message: e.message, candidates: e.candidates });
+    }
+    res.status(502).json({ error: e instanceof Error ? e.message : 'Geocoding failed.' });
+  }
 }));
 
 // ---------- participants ----------

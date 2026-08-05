@@ -13,6 +13,30 @@ export function Roster({ classId }: { classId: string }) {
   const [form, setForm] = useState({ ...blankForm });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [candidateFor, setCandidateFor] = useState<{ participant: Participant; candidates: Candidate[] } | null>(null);
+  const [geo, setGeo] = useState<{ kind: 'checking' | 'ok' | 'ambiguous' | 'notfound' | 'error'; label?: string; message?: string; candidates?: Candidate[] } | null>(null);
+
+  const verifyPlace = async () => {
+    const q = form.place.trim();
+    if (!q) return;
+    setGeo({ kind: 'checking' });
+    try {
+      const r = await apiClient.geocode(q);
+      if (r.status === 'ok' && r.place) {
+        setForm((f) => ({ ...f, place: r.place!.label }));
+        setGeo({ kind: 'ok', label: r.place.label });
+      } else if (r.status === 'ambiguous') {
+        setGeo({ kind: 'ambiguous', candidates: r.candidates ?? [] });
+      } else {
+        setGeo({ kind: 'notfound', message: r.message });
+      }
+    } catch (e: any) {
+      setGeo({ kind: 'error', message: e.message });
+    }
+  };
+  const chooseGeo = (c: Candidate) => {
+    setForm((f) => ({ ...f, place: c.label }));
+    setGeo({ kind: 'ok', label: c.label });
+  };
 
   const load = () => apiClient.getClass(classId).then(setCls).catch((e) => setError(e.message));
   useEffect(() => { load(); }, [classId]);
@@ -27,6 +51,7 @@ export function Roster({ classId }: { classId: string }) {
       }
       setForm({ ...blankForm });
       setEditingId(null);
+      setGeo(null);
       await load();
     } catch (e: any) { setError(e.message); }
   };
@@ -34,6 +59,7 @@ export function Roster({ classId }: { classId: string }) {
   const startEdit = (p: Participant) => {
     setEditingId(p.id);
     setForm({ name: p.name, birthDate: p.birthDate, birthTime: p.birthTime ?? '', place: p.place, pronoun: p.pronoun, email: p.email ?? '' });
+    setGeo(null);
     window.scrollTo(0, 0);
   };
 
@@ -119,16 +145,32 @@ export function Roster({ classId }: { classId: string }) {
           </div>
         </div>
         <div className="row" style={{ marginTop: 12 }}>
-          <div className="grow" style={{ minWidth: 220 }}>
+          <div className="grow" style={{ minWidth: 240 }}>
             <label>Birthplace (city, state/region, country)</label>
-            <input value={form.place} placeholder="e.g. Boulder, Colorado, USA" onChange={(e) => setForm({ ...form, place: e.target.value })} />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input style={{ flex: 1 }} value={form.place} placeholder="e.g. Boulder, Colorado, USA"
+                onChange={(e) => { setForm({ ...form, place: e.target.value }); setGeo(null); }} />
+              <button type="button" className="ghost small" onClick={verifyPlace} disabled={!form.place.trim() || geo?.kind === 'checking'}>
+                {geo?.kind === 'checking' ? 'Checking…' : 'Verify'}
+              </button>
+            </div>
+            {geo?.kind === 'ok' && <p className="muted" style={{ color: 'var(--ok)', margin: '6px 0 0' }}>✓ {geo.label}</p>}
+            {(geo?.kind === 'notfound' || geo?.kind === 'error') && <p className="muted" style={{ color: 'var(--danger)', margin: '6px 0 0' }}>{geo.message}</p>}
+            {geo?.kind === 'ambiguous' && (
+              <div style={{ marginTop: 6 }}>
+                <p className="muted" style={{ margin: '0 0 4px' }}>Several places match — pick the right one:</p>
+                {geo.candidates!.map((c, i) => (
+                  <button type="button" key={i} className="candidate" onClick={() => chooseGeo(c)}>{c.label}</button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="grow" style={{ minWidth: 180 }}>
             <label>Email</label>
             <input value={form.email} placeholder="for the reading email" onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </div>
           <button className="gold" onClick={submitForm}>{editingId ? 'Save' : 'Add'}</button>
-          {editingId && <button className="ghost" onClick={() => { setEditingId(null); setForm({ ...blankForm }); }}>Cancel</button>}
+          {editingId && <button className="ghost" onClick={() => { setEditingId(null); setForm({ ...blankForm }); setGeo(null); }}>Cancel</button>}
         </div>
         {!form.birthTime && <p className="muted" style={{ marginBottom: 0 }}>No birth time → Rising &amp; Midheaven can't be computed (and the Moon may be approximate).</p>}
       </div>
